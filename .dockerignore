@@ -1,0 +1,10 @@
+.git
+.gitignore
+__pycache__/
+*.py[cod]
+*.db
+.pytest_cache/
+Backend/uploads/
+Frontend/node_modules/
+Frontend/dist/
+*.log
