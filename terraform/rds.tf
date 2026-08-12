@@ -20,8 +20,9 @@ resource "aws_db_subnet_group" "private" {
 resource "aws_db_instance" "postgres" {
   identifier             = "${var.resource_prefix}-postgres"
   engine                 = "postgres"
-  engine_version         = "15.4"
+  engine_version         = "15"
   instance_class         = "db.t4g.micro"
+
   allocated_storage      = 20
   max_allocated_storage  = 100
   storage_type           = "gp3"

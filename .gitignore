@@ -1,76 +1,56 @@
 # Python
-
 __pycache__/
-
 *.py[cod]
-
 *.pyo
 
-
 # Virtual Environment
-
 venv/
-
 env/
-
 .venv/
 
-
-
 # Environment
-
 .env
 
-
-
 # Database
-
 *.db
-
 *.sqlite
-
 *.sqlite3
 
-
-
 # Uploads
-
 backend/uploads/*
 
-
-
 # Node
-
 node_modules/
-
 dist/
-
 build/
 
-
-
 # Vite
-
 .vite/
 
-
-
 # Logs
-
 *.log
 
-
-
 # IDE
-
 .vscode/
-
 .idea/
 
-
-
 # OS
-
 .DS_Store
-
 Thumbs.db
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+terraform.exe
+*.zip
+final_test.md
+
+# Temp Lambda Build Artifacts
+lambda_build/
+lambda_package.zip

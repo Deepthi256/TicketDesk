@@ -1,12 +1,13 @@
 # AWS Secrets Manager Secret for DB Password
 resource "aws_secretsmanager_secret" "db_credentials" {
-  name                    = "${var.resource_prefix}-db-secret-${random_password.db_password.key_id}"
+  name                    = "${var.resource_prefix}-db-secret-${random_id.bucket_suffix.hex}"
   recovery_window_in_days = 0
 
   tags = {
     Name = "${var.resource_prefix}-db-secret"
   }
 }
+
 
 resource "aws_secretsmanager_secret_version" "db_credentials" {
   secret_id = aws_secretsmanager_secret.db_credentials.id

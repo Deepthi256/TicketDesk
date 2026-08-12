@@ -13,11 +13,13 @@ import {
 } from "../types";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: (import.meta as any).env?.VITE_API_URL || "",
   headers: {
     "Content-Type": "application/json"
   }
 });
+
+
 
 export const loginUser = async (data: LoginInput): Promise<AuthResponse> => {
   const response = await api.post<AuthResponse>("/api/auth/login", data);
@@ -104,6 +106,37 @@ export const getAttachment = async (ticketId: string): Promise<Attachment> => {
 };
 
 export const uploadAttachment = async (ticketId: string, file: File): Promise<Attachment> => {
+  try {
+    const encodedFileName = encodeURIComponent(file.name);
+    const encodedFileType = encodeURIComponent(file.type || "application/octet-stream");
+
+    // Request presigned S3 upload URL
+    const presignedRes = await api.post<{
+      upload_mode: string;
+      upload_url: string;
+      file_key: string;
+    }>(`/api/tickets/${ticketId}/presigned-upload?file_name=${encodedFileName}&file_type=${encodedFileType}`);
+
+    if (presignedRes.data && presignedRes.data.upload_mode === "s3_presigned" && presignedRes.data.upload_url) {
+      // Direct upload to S3 via presigned URL
+      await axios.put(presignedRes.data.upload_url, file, {
+        headers: {
+          "Content-Type": file.type || "application/octet-stream"
+        }
+      });
+
+      // Confirm attachment in DB
+      const encodedKey = encodeURIComponent(presignedRes.data.file_key);
+      const confirmRes = await api.post<Attachment>(
+        `/api/tickets/${ticketId}/confirm-attachment?file_name=${encodedFileName}&file_key=${encodedKey}`
+      );
+      return confirmRes.data;
+    }
+  } catch (err) {
+    console.warn("Presigned S3 upload fallback to direct multipart upload:", err);
+  }
+
+  // Fallback multipart form upload
   const formData = new FormData();
   formData.append("file", file);
 
@@ -114,5 +147,6 @@ export const uploadAttachment = async (ticketId: string, file: File): Promise<At
   });
   return response.data;
 };
+
 
 export default api;

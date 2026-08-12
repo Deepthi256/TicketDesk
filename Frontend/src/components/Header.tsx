@@ -33,9 +33,10 @@ export default function Header() {
         ) : (
           <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
             <ShieldCheck className="w-4 h-4" />
-            Local Environment Active
+            AWS Cloud Active
           </div>
         )}
+
       </div>
     </header>
   );

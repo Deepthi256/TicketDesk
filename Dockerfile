@@ -1,18 +1,10 @@
-# Stage 1: Build Frontend
-FROM node:20-alpine AS frontend-builder
-WORKDIR /frontend
-COPY Frontend/package*.json ./
-RUN npm install
-COPY Frontend/ ./
-RUN npm run build
-
-# Stage 2: Python Builder / Wheel Installation
+# Stage 1: Python Builder / Wheel Installation
 FROM python:3.11-slim AS python-builder
 WORKDIR /app
 COPY Backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Stage 3: Final Security-Hardened Runtime Image
+# Stage 2: Final Lean Security-Hardened API Runtime Image
 FROM python:3.11-slim AS final
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -22,20 +14,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Create non-root user and group
+# Create non-root system user and group
 RUN addgroup --system --gid 10001 appgroup && \
     adduser --system --uid 10001 --ingroup appgroup --home /app appuser
 
-# Copy installed python packages from builder stage
-COPY --from=python-builder /root/.local /app/.local
+# Copy installed python packages from builder stage with appuser ownership
+COPY --chown=appuser:appgroup --from=python-builder /root/.local /app/.local
 ENV PATH=/app/.local/bin:$PATH
 
-# Copy backend source code & frontend dist build
-COPY Backend/app ./app
-COPY --from=frontend-builder /frontend/dist ./frontend_dist
+# Copy Python FastAPI backend application source code
+COPY --chown=appuser:appgroup Backend/app ./app
 
-# Create upload & data directory with proper ownership
-RUN mkdir -p /tmp/uploads /tmp/data && chown -R appuser:appgroup /app /tmp/uploads /tmp/data
+# Create upload & data directory with appuser ownership
+RUN mkdir -p /tmp/uploads /tmp/data && chown -R appuser:appgroup /tmp/uploads /tmp/data
 
 # Switch to non-root user
 USER appuser
@@ -46,5 +37,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-
-

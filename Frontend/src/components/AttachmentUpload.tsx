@@ -83,7 +83,7 @@ export default function AttachmentUpload({ ticketId, isAdmin = false }: Attachme
               </div>
 
               <a
-                href={`http://localhost:8000/api/attachments/${att.id}/file`}
+                href={`/api/attachments/${att.id}/file`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors flex-shrink-0"
@@ -91,6 +91,7 @@ export default function AttachmentUpload({ ticketId, isAdmin = false }: Attachme
                 <Download className="w-3.5 h-3.5" />
                 Download
               </a>
+
             </div>
           ))}
         </div>

@@ -7,4 +7,5 @@ __pycache__/
 Backend/uploads/
 Frontend/node_modules/
 Frontend/dist/
-*.log
+terraform/
+*.log
