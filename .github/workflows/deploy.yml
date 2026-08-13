@@ -106,8 +106,21 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
+      - name: Build and Deploy React Frontend to S3 & CloudFront
+        run: |
+          echo "Building React static frontend bundle..."
+          cd Frontend
+          npm install
+          npm run build
+          cd ..
+          echo "Syncing compiled frontend assets to S3 bucket tkt-poc-frontend-4a79ac51..."
+          aws s3 sync Frontend/dist/ s3://tkt-poc-frontend-4a79ac51/ --delete
+          echo "Invalidating CloudFront CDN edge cache..."
+          aws cloudfront create-invalidation --distribution-id E12697VRFKPWD1 --paths "/*"
+
       - name: Run Automated Smoke Tests against Deployed URL
         run: |
           ALB_URL=$(aws elbv2 describe-load-balancers --names tkt-poc-alb --query "LoadBalancers[0].DNSName" --output text)
           echo "Executing smoke tests against http://$ALB_URL"
           python Backend/tests/smoke_test.py --url "http://$ALB_URL"
+
