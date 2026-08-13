@@ -81,7 +81,8 @@ jobs:
         run: |
           repo_url="$ECR_REGISTRY/$ECR_REPOSITORY"
           echo "Building Docker image with SHA tag: $IMAGE_TAG"
-          docker buildx build --platform linux/amd64 --provenance=false --push -t $repo_url:$IMAGE_TAG -t $repo_url:latest .
+          docker buildx build --platform linux/amd64 --provenance=false --push -t $repo_url:$IMAGE_TAG .
+
           echo "image=$repo_url:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 
