@@ -70,18 +70,20 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build, Tag and Push Image to ECR (Commit SHA Tag)
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          repo_url="$ECR_REGISTRY/$ECR_REPOSITORY"
           echo "Building Docker image with SHA tag: $IMAGE_TAG"
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker buildx build --platform linux/amd64 --provenance=false --push -t $repo_url:$IMAGE_TAG -t $repo_url:latest .
+          echo "image=$repo_url:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
 
       - name: Download Task Definition
         run: |
