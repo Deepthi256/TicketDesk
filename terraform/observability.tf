@@ -23,6 +23,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_alarm" {
   period              = 300
   statistic           = "Sum"
   threshold           = 5
+  treat_missing_data  = "notBreaching"
   alarm_description   = "Triggers when ALB target returns more than 5 5xx errors in 5 minutes"
   alarm_actions       = [aws_sns_topic.alerts.arn]
 
@@ -42,6 +43,7 @@ resource "aws_cloudwatch_metric_alarm" "unhealthy_hosts_alarm" {
   period              = 60
   statistic           = "Average"
   threshold           = 0
+  treat_missing_data  = "notBreaching"
   alarm_description   = "Triggers when target group has at least 1 unhealthy target"
   alarm_actions       = [aws_sns_topic.alerts.arn]
 
@@ -50,6 +52,7 @@ resource "aws_cloudwatch_metric_alarm" "unhealthy_hosts_alarm" {
     LoadBalancer = aws_lb.main.arn_suffix
   }
 }
+
 
 # Alarm 3: Database High CPU Alarm
 resource "aws_cloudwatch_metric_alarm" "db_cpu_alarm" {
